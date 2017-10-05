@@ -1,0 +1,80 @@
+---
+title: "Quiz_ChenChen"
+author: "Chenchen"
+date: "10/5/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#4. Upload the MITx/Harvardx dataset to R as a dataframe named `D1`(Please inlcude your code in your markdown document)
+D1 <- read.csv("~/Documents/TC 17 Fall/HUDK 4050/Quiz_ChenChen/HMXPC13_DI_v2_5-14-14.csv")
+
+#5. What does the `DI` suffix that is appeneded to two of the variable names mean?
+#deindentifying ,casue these variables contains studnet priivacy infos.
+
+#6. How many people enrolled in HarvardX/CS50x recieved certification in 2012? (Please inlcude your code in your markdown document)
+sum(D1$course_id== "HarvardX/CS50x/2012" & D1$certified==1)
+#so 1287 students enrolled 
+
+#7. How many people registered for HarvardX/CS50x from Columbia on October 15, 2012? (Please inlcude your code in your markdown document)
+sum(D1$course_id== "HarvardX/CS50x/2012" & D1$final_cc_cname_DI=="Colombia" & D1$start_time_DI=="2012-10-15")
+# 10 persons from Colombia registered 
+
+
+#8. Create a new data frame (`D2`) that includes student ID and registration date for all students from a country of your choice (Please inlcude your code in your markdown document)
+D2 <- subset(D1, final_cc_cname_DI=='Australia', select=c(userid_DI,start_time_DI))
+
+
+#9. Create a new data frame (`D3`) in which the column names are the registration dates, with one column containing the student ids and all other cells indicating a `1` if the student registered on that date or an `NA` if they did not (hint: you will need to create a new variable before you change the structure of your data frame)
+D3<-D1[c(2,12)]
+D3$value <- 1
+
+library("tidyr")
+library("dplyr")
+D3=mutate(D3, row=row_number())
+D3 <- tidyr::spread(D3, key="start_time_DI",value="value", fill = NA, convert = FALSE, drop = TRUE)
+
+
+#10. Now make the row names of `D3` the student ids on your new data frame and remove the user id column from your data frame
+names(D3)[names(D3) == 'row'] <- 'student_id'
+D3 <- D3[c(-1)]
+
+#11. Convert your data frame to a matrix (`M1`)
+M1 <-as.matrix(D3)
+#12. Create a new matrix which is the transposed version of your matrix (`M2`)
+M2 <-t(M1)
+
+
+#13. Create a third matrix (`M3`) that is a student by student matrix where the cells in the matrix represent if two studentes registered on the same day (This will take a lot of processing power, you may not be able to complete it if you have a large number of students)
+# I beleive M1 * M2 will give us the matrix of student by student relationship, and the cell would turn to 1 if these 2 students registered at the same time or else the cell would turn to NA
+M3 <- M1 %*% M2
+#I runned for half an hour and ended up with a crash, So I would only leave the codes here 
+
+#14. Convert the diagonal of your matrix into `NA`s
+
+diag(M2) <-NA
+```
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
